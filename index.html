@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Palmen Grill Monitor</title>
+<style>
+body{margin:0;font-family:Arial;background:#111;color:#fff}
+header{padding:18px;background:#1b1b1b;font-size:28px;font-weight:bold}
+.wrap{padding:18px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.box{background:#1b1b1b;border-radius:18px;overflow:hidden;min-height:65vh}
+h2{margin:0;padding:16px;text-align:center}
+.prep h2{background:#333}
+.ready h2{background:#176a3b}
+.orders{padding:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:12px}
+.num{font-size:52px;font-weight:bold;text-align:center;background:#252525;padding:18px;border-radius:14px}
+.ready .num{background:#154c2c}
+.controls{max-width:800px;margin:auto}
+.card{background:#1b1b1b;padding:16px;border-radius:16px;margin-bottom:14px}
+input{font-size:26px;padding:12px;width:65%}
+button{font-size:18px;padding:12px 14px;border:0;border-radius:10px;margin:4px}
+.add{background:white}
+.readybtn{background:#176a3b;color:white}
+.done{background:#555;color:white}
+.row{padding:10px;background:#222;margin:8px 0;border-radius:10px}
+</style>
+</head>
+<body>
+<header>PALMEN GRILL</header>
+<div id="display" class="wrap" style="display:none">
+<div class="grid">
+<div class="box prep"><h2>IN ZUBEREITUNG</h2><div id="prep" class="orders"></div></div>
+<div class="box ready"><h2>ABHOLBEREIT</h2><div id="ready" class="orders"></div></div>
+</div>
+</div>
+
+<div id="control" class="wrap controls" style="display:none">
+<div class="card">
+<h2>Neue Bestellnummer</h2>
+<input id="n" inputmode="numeric" placeholder="z.B. 125">
+<button class="add" onclick="addOrder()">Hinzufügen</button>
+</div>
+<div class="card">
+<h2>Aktuelle Bestellungen</h2>
+<div id="list"></div>
+</div>
+</div>
+
+<script>
+var DB="https://palmen-grill-monitor-default-rtdb.europe-west1.firebasedatabase.app";
+var mode=new URLSearchParams(location.search).get("mode")||"control";
+document.getElementById(mode==="display"?"display":"control").style.display="block";
+
+function req(method,path,data,cb){
+var x=new XMLHttpRequest();
+x.open(method,DB+path+".json",true);
+x.setRequestHeader("Content-Type","application/json");
+x.onreadystatechange=function(){
+if(x.readyState===4&&cb){
+var r=null; try{r=JSON.parse(x.responseText)}catch(e){}
+cb(r);
+}};
+x.send(data?JSON.stringify(data):null);
+}
+
+function addOrder(){
+var n=document.getElementById("n").value.replace(/\D/g,"");
+if(!n)return;
+req("POST","/orders",{number:n,status:"preparing",createdAt:Date.now()},function(){
+document.getElementById("n").value="";
+});
+}
+
+function setReady(k){
+req("PATCH","/orders/"+k,{status:"ready"});
+}
+
+function removeOrder(k){
+req("DELETE","/orders/"+k);
+}
+
+function render(data){
+data=data||{};
+var prep="",ready="",list="";
+Object.keys(data).forEach(function(k){
+var o=data[k];
+if(o.status==="ready"){
+ready+='<div class="num">'+o.number+'</div>';
+list+='<div class="row"><b>'+o.number+'</b> ABHOLBEREIT <button class="done" onclick="removeOrder(\''+k+'\')">Abgeholt</button></div>';
+}else{
+prep+='<div class="num">'+o.number+'</div>';
+list+='<div class="row"><b>'+o.number+'</b> IN ZUBEREITUNG <button class="readybtn" onclick="setReady(\''+k+'\')">Fertig</button></div>';
+}
+});
+if(mode==="display"){
+document.getElementById("prep").innerHTML=prep||"";
+document.getElementById("ready").innerHTML=ready||"";
+}else{
+document.getElementById("list").innerHTML=list||"Keine Bestellungen";
+}
+}
+
+function poll(){
+req("GET","/orders",null,function(d){
+render(d);
+setTimeout(poll,1200);
+});
+}
+poll();
+</script>
+</body>
+</html>
