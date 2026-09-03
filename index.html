@@ -4,110 +4,522 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Palmen Grill Monitor</title>
+
 <style>
 body{margin:0;font-family:Arial;background:#111;color:#fff}
-header{padding:18px;background:#1b1b1b;font-size:28px;font-weight:bold}
+
+header{
+padding:18px;
+background:#1b1b1b;
+font-size:28px;
+font-weight:bold;
+display:flex;
+justify-content:space-between;
+align-items:center
+}
+
 .wrap{padding:18px}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .box{background:#1b1b1b;border-radius:18px;overflow:hidden;min-height:65vh}
+
 h2{margin:0;padding:16px;text-align:center}
 .prep h2{background:#333}
 .ready h2{background:#176a3b}
-.orders{padding:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:12px}
-.num{font-size:52px;font-weight:bold;text-align:center;background:#252525;padding:18px;border-radius:14px}
+
+.orders{
+padding:16px;
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(110px,1fr));
+gap:12px
+}
+
+.num{
+font-size:52px;
+font-weight:bold;
+text-align:center;
+background:#252525;
+padding:18px;
+border-radius:14px
+}
+
 .ready .num{background:#154c2c}
 .controls{max-width:800px;margin:auto}
-.card{background:#1b1b1b;padding:16px;border-radius:16px;margin-bottom:14px}
+
+.card{
+background:#1b1b1b;
+padding:16px;
+border-radius:16px;
+margin-bottom:14px
+}
+
 input{font-size:26px;padding:12px;width:65%}
-button{font-size:18px;padding:12px 14px;border:0;border-radius:10px;margin:4px}
+
+button{
+font-size:18px;
+padding:12px 14px;
+border:0;
+border-radius:10px;
+margin:4px
+}
+
 .add{background:white}
 .readybtn{background:#176a3b;color:white}
 .done{background:#555;color:white}
-.row{padding:10px;background:#222;margin:8px 0;border-radius:10px}
+
+.soundbtn{
+background:white;
+color:#111;
+font-weight:bold
+}
+
+.row{
+padding:10px;
+background:#222;
+margin:8px 0;
+border-radius:10px
+}
+
+@media(max-width:700px){
+.grid{grid-template-columns:1fr}
+}
 </style>
 </head>
+
 <body>
-<header>PALMEN GRILL</header>
+
+<header>
+<span>PALMEN GRILL</span>
+<button
+id="soundBtn"
+class="soundbtn"
+style="display:none"
+onclick="enableSound()">
+🔊 Ton aktivieren
+</button>
+</header>
+
 <div id="display" class="wrap" style="display:none">
+
 <div class="grid">
-<div class="box prep"><h2>IN ZUBEREITUNG</h2><div id="prep" class="orders"></div></div>
-<div class="box ready"><h2>ABHOLBEREIT</h2><div id="ready" class="orders"></div></div>
+
+<div class="box prep">
+<h2>IN ZUBEREITUNG</h2>
+<div id="prep" class="orders"></div>
+</div>
+
+<div class="box ready">
+<h2>ABHOLBEREIT</h2>
+<div id="ready" class="orders"></div>
+</div>
+
 </div>
 </div>
 
+
 <div id="control" class="wrap controls" style="display:none">
+
 <div class="card">
 <h2>Neue Bestellnummer</h2>
-<input id="n" inputmode="numeric" placeholder="z.B. 125">
-<button class="add" onclick="addOrder()">Hinzufügen</button>
+
+<input
+id="n"
+inputmode="numeric"
+placeholder="z.B. 125">
+
+<button
+class="add"
+onclick="addOrder()">
+Hinzufügen
+</button>
+
 </div>
+
+
 <div class="card">
 <h2>Aktuelle Bestellungen</h2>
 <div id="list"></div>
 </div>
+
 </div>
 
+
 <script>
+
 var DB="https://palmen-grill-monitor-default-rtdb.europe-west1.firebasedatabase.app";
-var mode=new URLSearchParams(location.search).get("mode")||"control";
-document.getElementById(mode==="display"?"display":"control").style.display="block";
+
+var mode=
+new URLSearchParams(location.search).get("mode")
+||"control";
+
+document
+.getElementById(
+mode==="display" ? "display" : "control"
+)
+.style.display="block";
+
+
+/* ---------- SOUND ---------- */
+
+var soundEnabled=false;
+var previousReady={};
+var firstLoad=true;
+
+if(mode==="display"){
+document.getElementById("soundBtn").style.display="inline-block";
+}
+
+function enableSound(){
+
+soundEnabled=true;
+
+document.getElementById("soundBtn").innerHTML=
+"🔊 Ton aktiv";
+
+speak("Ton ist aktiviert");
+
+}
+
+
+function speak(text){
+
+if(!soundEnabled)return;
+
+try{
+
+if("speechSynthesis" in window){
+
+window.speechSynthesis.cancel();
+
+var u=
+new SpeechSynthesisUtterance(text);
+
+u.lang="de-DE";
+u.rate=0.85;
+u.pitch=1;
+u.volume=1;
+
+window.speechSynthesis.speak(u);
+
+}else{
+
+beep();
+
+}
+
+}catch(e){
+
+beep();
+
+}
+
+}
+
+
+function beep(){
+
+try{
+
+var AC=
+window.AudioContext||
+window.webkitAudioContext;
+
+var ctx=new AC();
+
+var osc=ctx.createOscillator();
+var gain=ctx.createGain();
+
+osc.connect(gain);
+gain.connect(ctx.destination);
+
+osc.frequency.value=880;
+gain.gain.value=0.3;
+
+osc.start();
+
+setTimeout(function(){
+
+osc.stop();
+ctx.close();
+
+},700);
+
+}catch(e){}
+
+}
+
+
+/* ---------- FIREBASE ---------- */
 
 function req(method,path,data,cb){
+
 var x=new XMLHttpRequest();
-x.open(method,DB+path+".json",true);
-x.setRequestHeader("Content-Type","application/json");
+
+x.open(
+method,
+DB+path+".json",
+true
+);
+
+x.setRequestHeader(
+"Content-Type",
+"application/json"
+);
+
 x.onreadystatechange=function(){
+
 if(x.readyState===4&&cb){
-var r=null; try{r=JSON.parse(x.responseText)}catch(e){}
+
+var r=null;
+
+try{
+r=JSON.parse(x.responseText);
+}catch(e){}
+
 cb(r);
-}};
-x.send(data?JSON.stringify(data):null);
+
 }
+
+};
+
+x.send(
+data===null || data===undefined
+? null
+: JSON.stringify(data)
+);
+
+}
+
+
+/* ---------- ADD ORDER ---------- */
 
 function addOrder(){
-var n=document.getElementById("n").value.replace(/\D/g,"");
+
+var input=
+document.getElementById("n");
+
+var n=
+input.value.replace(/\D/g,"");
+
 if(!n)return;
-req("POST","/orders",{number:n,status:"preparing",createdAt:Date.now()},function(){
-document.getElementById("n").value="";
-});
+
+
+/* CHECK DUPLICATE */
+
+req(
+"GET",
+"/orders",
+null,
+function(data){
+
+data=data||{};
+
+var duplicate=false;
+
+Object.keys(data).forEach(function(k){
+
+if(
+String(data[k].number)===
+String(n)
+){
+
+duplicate=true;
+
 }
+
+});
+
+
+if(duplicate){
+
+alert(
+"Nummer "+n+
+" ist bereits vorhanden."
+);
+
+return;
+
+}
+
+
+/* ADD NEW ORDER */
+
+req(
+"POST",
+"/orders",
+{
+number:n,
+status:"preparing",
+createdAt:Date.now()
+},
+function(){
+
+input.value="";
+
+}
+);
+
+}
+);
+
+}
+
+
+/* ---------- READY ---------- */
 
 function setReady(k){
-req("PATCH","/orders/"+k,{status:"ready"});
+
+req(
+"PATCH",
+"/orders/"+k,
+{
+status:"ready",
+readyAt:Date.now()
 }
+);
+
+}
+
+
+/* ---------- REMOVE ---------- */
 
 function removeOrder(k){
-req("DELETE","/orders/"+k);
+
+req(
+"DELETE",
+"/orders/"+k
+);
+
 }
+
+
+/* ---------- DISPLAY ---------- */
 
 function render(data){
+
 data=data||{};
-var prep="",ready="",list="";
+
+var prep="";
+var ready="";
+var list="";
+
+var currentReady={};
+
+
 Object.keys(data).forEach(function(k){
+
 var o=data[k];
+
+
 if(o.status==="ready"){
-ready+='<div class="num">'+o.number+'</div>';
-list+='<div class="row"><b>'+o.number+'</b> ABHOLBEREIT <button class="done" onclick="removeOrder(\''+k+'\')">Abgeholt</button></div>';
-}else{
-prep+='<div class="num">'+o.number+'</div>';
-list+='<div class="row"><b>'+o.number+'</b> IN ZUBEREITUNG <button class="readybtn" onclick="setReady(\''+k+'\')">Fertig</button></div>';
-}
-});
-if(mode==="display"){
-document.getElementById("prep").innerHTML=prep||"";
-document.getElementById("ready").innerHTML=ready||"";
-}else{
-document.getElementById("list").innerHTML=list||"Keine Bestellungen";
-}
+
+ready+=
+'<div class="num">'+
+o.number+
+'</div>';
+
+
+list+=
+'<div class="row">'+
+'<b>'+o.number+'</b> '+
+'ABHOLBEREIT '+
+'<button class="done" '+
+'onclick="removeOrder(\''+
+k+
+'\')">Abgeholt</button>'+
+'</div>';
+
+
+currentReady[k]=true;
+
+
+/* ANNOUNCE NEW READY ORDER */
+
+if(
+mode==="display" &&
+!firstLoad &&
+!previousReady[k]
+){
+
+speak(
+"Nummer "+
+o.number+
+", bitte!"
+);
+
 }
 
-function poll(){
-req("GET","/orders",null,function(d){
-render(d);
-setTimeout(poll,1200);
-});
+
+}else{
+
+
+prep+=
+'<div class="num">'+
+o.number+
+'</div>';
+
+
+list+=
+'<div class="row">'+
+'<b>'+o.number+'</b> '+
+'IN ZUBEREITUNG '+
+'<button class="readybtn" '+
+'onclick="setReady(\''+
+k+
+'\')">Fertig</button>'+
+'</div>';
+
 }
+
+});
+
+
+previousReady=currentReady;
+firstLoad=false;
+
+
+if(mode==="display"){
+
+document.getElementById("prep").innerHTML=
+prep||"";
+
+document.getElementById("ready").innerHTML=
+ready||"";
+
+}else{
+
+document.getElementById("list").innerHTML=
+list||"Keine Bestellungen";
+
+}
+
+}
+
+
+/* ---------- AUTO UPDATE ---------- */
+
+function poll(){
+
+req(
+"GET",
+"/orders",
+null,
+function(d){
+
+render(d);
+
+setTimeout(
+poll,
+1000
+);
+
+}
+);
+
+}
+
 poll();
+
 </script>
+
 </body>
 </html>
