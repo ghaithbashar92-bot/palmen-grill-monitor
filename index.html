@@ -186,14 +186,24 @@ if(!soundEnabled)return;
 
 try{
 
-var audio =
-new Audio(
-"https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=de&q="
-+ encodeURIComponent(text)
-);
+if("speechSynthesis" in window){
 
-audio.volume=1;
-audio.play();
+window.speechSynthesis.cancel();
+
+var u=new SpeechSynthesisUtterance(text);
+
+u.lang="de-DE";
+u.rate=0.85;
+u.pitch=1;
+u.volume=1;
+
+window.speechSynthesis.speak(u);
+
+}else{
+
+beep();
+
+}
 
 }catch(e){
 
@@ -225,8 +235,10 @@ gain.gain.value=0.3;
 osc.start();
 
 setTimeout(function(){
+
 osc.stop();
 ctx.close();
+
 },700);
 
 }catch(e){}
