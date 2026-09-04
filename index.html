@@ -205,6 +205,7 @@ mode==="display" ? "display" : "control"
 var soundEnabled=false;
 var previousReady={};
 var firstLoad=true;
+var audioPlayer=null;
 
 if(mode==="display"){
 document.getElementById("soundBtn").style.display="inline-block";
@@ -217,10 +218,14 @@ soundEnabled=true;
 document.getElementById("soundBtn").innerHTML=
 "🔊 Ton aktiv";
 
+/* unlock sound on Samsung TV */
+beep();
+
+setTimeout(function(){
 speak("Ton ist aktiviert");
+},500);
 
 }
-
 
 function speak(text){
 
@@ -228,24 +233,24 @@ if(!soundEnabled)return;
 
 try{
 
-if("speechSynthesis" in window){
+var url=
+"https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=de&q="
++encodeURIComponent(text);
 
-window.speechSynthesis.cancel();
+audioPlayer=new Audio(url);
+audioPlayer.volume=1;
 
-var u=new SpeechSynthesisUtterance(text);
+var p=audioPlayer.play();
 
-u.lang="de-DE";
-u.rate=0.85;
-u.pitch=1;
-u.volume=1;
-
-window.speechSynthesis.speak(u);
-
-}else{
-
+if(p && p.catch){
+p.catch(function(){
 beep();
-
+});
 }
+
+audioPlayer.onerror=function(){
+beep();
+};
 
 }catch(e){
 
@@ -263,6 +268,8 @@ var AC=
 window.AudioContext||
 window.webkitAudioContext;
 
+if(!AC)return;
+
 var ctx=new AC();
 
 var osc=ctx.createOscillator();
@@ -272,22 +279,22 @@ osc.connect(gain);
 gain.connect(ctx.destination);
 
 osc.frequency.value=880;
-gain.gain.value=0.3;
+gain.gain.value=0.5;
 
 osc.start();
 
 setTimeout(function(){
 
+try{
 osc.stop();
 ctx.close();
+}catch(e){}
 
-},700);
+},500);
 
 }catch(e){}
 
 }
-/* ---------- FIREBASE ---------- */
-
 function req(method,path,data,cb){
 
 var x=new XMLHttpRequest();
