@@ -42,28 +42,35 @@ repeating-conic-gradient(
    FOOD LEFT + RIGHT
 ========================= */
 
+/* ===== FOOD LEFT + RIGHT ===== */
+
 .food{
 position:absolute;
 top:0;
 bottom:0;
 width:18%;
 z-index:1;
+pointer-events:none;
+overflow:hidden;
+
 background-image:url("IMG_8709.png");
 background-repeat:no-repeat;
-background-size:555% 100%;
-pointer-events:none;
+
+/* تكبير الصورة حتى نأخذ فقط الأكل من الأطراف */
+background-size:auto 100%;
 }
 
+/* البرغر فقط */
 .food-left{
 left:0;
 background-position:left center;
 }
 
+/* الدجاج فقط */
 .food-right{
 right:0;
 background-position:right center;
 }
-
 /* =========================
    CENTER
 ========================= */
