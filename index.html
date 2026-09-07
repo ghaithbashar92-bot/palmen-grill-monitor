@@ -20,9 +20,7 @@ color:#fff;
 overflow:hidden;
 }
 
-/* =========================
-   TV
-========================= */
+/* ===== TV ===== */
 
 #display{
 display:none;
@@ -31,7 +29,7 @@ height:100vh;
 background:#111;
 }
 
-/* ===== LOGO فوق فقط ===== */
+/* ===== LOGO ===== */
 
 .logo{
 height:18vh;
@@ -48,7 +46,7 @@ max-height:100%;
 object-fit:contain;
 }
 
-/* ===== قسمين ===== */
+/* ===== TWO SIDES ===== */
 
 .grid{
 display:flex;
@@ -75,13 +73,9 @@ font-size:24px;
 font-weight:bold;
 }
 
-/* التحضير */
-
 .prep .title{
 background:#526da6;
 }
-
-/* الجاهز */
 
 .ready .title{
 background:#00b96b;
@@ -96,17 +90,13 @@ width:100%;
 width:100%;
 height:7vh;
 min-height:48px;
-
 display:flex;
 align-items:center;
 justify-content:center;
-
 font-size:34px;
 font-weight:bold;
 color:#fff;
 }
-
-/* الرقم الجاهز */
 
 .ready .num{
 background:#15965f;
@@ -114,9 +104,7 @@ margin-bottom:4px;
 }
 
 
-/* =========================
-   CONTROL
-========================= */
+/* ===== CONTROL ===== */
 
 #control{
 display:none;
@@ -189,7 +177,7 @@ font-size:20px;
 <body>
 
 
-<!-- ===== شاشة التلفزيون ===== -->
+<!-- ===== TV ===== -->
 
 <div id="display">
 
@@ -221,11 +209,10 @@ ABHOLBEREIT
 </div>
 
 </div>
-
 </div>
 
 
-<!-- ===== لوحة التحكم ===== -->
+<!-- ===== CONTROL ===== -->
 
 <div id="control">
 
@@ -256,11 +243,12 @@ Hinzufügen
 </div>
 
 </div>
-
 </div>
 
 
 <script>
+
+/* ===== FIREBASE ===== */
 
 var DB =
 "https://palmen-grill-monitor-default-rtdb.europe-west1.firebasedatabase.app";
@@ -293,7 +281,7 @@ document.getElementById("control").style.display="block";
 }
 
 
-/* ===== FIREBASE REQUEST ===== */
+/* ===== REQUEST ===== */
 
 function request(method,path,data,callback){
 
@@ -337,9 +325,9 @@ xhr.send(JSON.stringify(data));
 }
 
 
-/* =========================
-   ADD + منع التكرار
-========================= */
+/* ==================================
+   ADD ORDER + منع إضافة رقم مكرر
+================================== */
 
 function addOrder(){
 
@@ -349,9 +337,6 @@ var number=input.value.replace(/\D/g,"");
 
 if(!number)return;
 
-
-/* أولاً نفحص كل الأرقام */
-
 request(
 "GET",
 "/orders",
@@ -360,16 +345,17 @@ function(data){
 
 data=data || {};
 
-var duplicate=false;
-
 var keys=Object.keys(data);
+var duplicate=false;
 
 for(var i=0;i<keys.length;i++){
 
 var order=data[keys[i]];
 
 if(
-String(order.number) === String(number)
+order &&
+String(order.number).trim() ===
+String(number).trim()
 ){
 
 duplicate=true;
@@ -380,7 +366,7 @@ break;
 }
 
 
-/* إذا الرقم موجود */
+/* الرقم موجود */
 
 if(duplicate){
 
@@ -388,12 +374,14 @@ alert(
 "Nummer "+number+" ist bereits vorhanden."
 );
 
+input.value="";
+
 return;
 
 }
 
 
-/* إذا غير موجود نضيفه */
+/* الرقم غير موجود */
 
 request(
 "POST",
@@ -445,7 +433,9 @@ null
 }
 
 
-/* ===== RENDER ===== */
+/* ==================================
+   RENDER + إخفاء أي تكرار قديم
+================================== */
 
 function render(data){
 
@@ -454,6 +444,9 @@ data=data || {};
 var prep="";
 var ready="";
 var list="";
+
+/* نخزن الأرقام التي ظهرت */
+var seen={};
 
 var keys=Object.keys(data);
 
@@ -470,31 +463,59 @@ for(var i=0;i<keys.length;i++){
 var key=keys[i];
 var order=data[key];
 
+if(!order){
+continue;
+}
+
+if(order.number===undefined){
+continue;
+}
+
+var number=
+String(order.number).trim();
+
+
+/* ===== إذا ظهر الرقم سابقاً تجاهله ===== */
+
+if(seen[number]){
+continue;
+}
+
+seen[number]=true;
+
+
+/* ===== READY ===== */
+
 if(order.status==="ready"){
 
 ready +=
 '<div class="num">'+
-order.number+
+number+
 '</div>';
 
 list +=
 '<div class="row">'+
-'<b>'+order.number+'</b> — ABHOLBEREIT '+
+'<b>'+number+'</b> — ABHOLBEREIT '+
 '<button class="done" onclick="removeOrder(\''+
 key+
 '\')">Abgeholt</button>'+
 '</div>';
 
-}else{
+}
+
+
+/* ===== PREPARING ===== */
+
+else{
 
 prep +=
 '<div class="num">'+
-order.number+
+number+
 '</div>';
 
 list +=
 '<div class="row">'+
-'<b>'+order.number+'</b> — IN ZUBEREITUNG '+
+'<b>'+number+'</b> — IN ZUBEREITUNG '+
 '<button class="readybtn" onclick="setReady(\''+
 key+
 '\')">Fertig</button>'+
@@ -505,12 +526,20 @@ key+
 }
 
 
+/* ===== DISPLAY ===== */
+
 if(mode==="display"){
 
 document.getElementById("prep").innerHTML=prep;
+
 document.getElementById("ready").innerHTML=ready;
 
-}else{
+}
+
+
+/* ===== CONTROL ===== */
+
+else{
 
 document.getElementById("list").innerHTML=
 list || "Keine Bestellungen";
@@ -532,7 +561,10 @@ function(data){
 
 render(data);
 
-setTimeout(poll,1000);
+setTimeout(
+poll,
+1000
+);
 
 }
 );
