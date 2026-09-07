@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>PALMO CHICKEN Monitor</title>
+<title>PALMO CHICKEN</title>
 
 <style>
 *{box-sizing:border-box}
@@ -13,35 +13,44 @@ margin:0;
 width:100%;
 height:100%;
 font-family:Arial,Helvetica,sans-serif;
-background:#080808;
+background:#090909;
 color:#fff;
+}
+
+body{
 overflow:hidden;
 }
 
+/* =========================
+   TV DISPLAY
+========================= */
+
 #display{
 display:none;
+position:relative;
 width:100vw;
 height:100vh;
-position:relative;
 overflow:hidden;
 background:
 repeating-conic-gradient(
 #151515 0 25%,
-#0b0b0b 0 50%
-) 0 0/42px 42px;
+#0c0c0c 0 50%
+) 0 0 / 42px 42px;
 }
 
-/* ===== SIDE FOOD ===== */
+/* =========================
+   FOOD LEFT + RIGHT
+========================= */
 
 .food{
 position:absolute;
 top:0;
 bottom:0;
 width:18%;
+z-index:1;
 background-image:url("IMG_8709.png");
 background-repeat:no-repeat;
 background-size:auto 100%;
-z-index:1;
 pointer-events:none;
 }
 
@@ -55,68 +64,82 @@ right:0;
 background-position:right center;
 }
 
-/* ===== CENTER AREA ===== */
+/* =========================
+   CENTER
+========================= */
 
-.center-wrap{
+.center{
 position:relative;
-z-index:3;
+z-index:5;
 width:66%;
 height:100vh;
 margin:0 auto;
-padding:18px 8px 12px;
 display:flex;
 flex-direction:column;
+padding:10px 6px 12px;
 }
 
-/* ===== LOGO ===== */
+/* =========================
+   LOGO
+========================= */
 
-.logo-area{
-height:17vh;
+.logo{
+height:19vh;
 min-height:110px;
 display:flex;
 align-items:center;
 justify-content:center;
-padding:4px 10px 10px;
+overflow:hidden;
 }
 
-.logo-area img{
+.logo img{
+display:block;
 max-width:75%;
 max-height:100%;
+width:auto;
+height:auto;
 object-fit:contain;
-display:block;
 }
 
-/* ===== ORDER PANELS ===== */
+/* =========================
+   PANELS
+========================= */
 
 .panels{
 flex:1;
+min-height:0;
 display:flex;
 gap:10px;
-min-height:0;
 }
 
 .box{
 position:relative;
 width:50%;
 height:100%;
-background:rgba(15,15,15,.97);
-border:1px solid #e51b23;
-border-radius:11px;
+background:rgba(16,16,16,.97);
+border:1px solid #d71920;
+border-radius:10px;
 overflow:hidden;
 }
 
 .box h2{
 margin:0;
-height:64px;
+height:62px;
 display:flex;
 align-items:center;
 justify-content:center;
 text-align:center;
-font-size:25px;
+font-size:24px;
 font-weight:900;
-background:linear-gradient(#bd1017,#8b080d);
-border-bottom:1px solid #e51b23;
+background:linear-gradient(
+#c20f17,
+#8e080d
+);
 }
+
+/* =========================
+   ORDER NUMBERS
+========================= */
 
 .orders{
 padding:10px;
@@ -136,14 +159,19 @@ border-radius:6px;
 border:1px solid #303030;
 }
 
-/* READY بدون وميض */
+/* READY = ثابت بدون وميض */
 
 .ready .num{
 background:#202020;
 border:1px solid #303030;
 box-shadow:none !important;
 animation:none !important;
+transform:none !important;
 }
+
+/* =========================
+   FOOTER
+========================= */
 
 .footerText{
 position:absolute;
@@ -167,29 +195,34 @@ flex:1;
 margin:0 8px;
 }
 
-/* ===== SOUND ===== */
+/* =========================
+   SOUND
+========================= */
 
 .soundbtn{
 position:absolute;
-z-index:50;
 top:8px;
 right:8px;
+z-index:100;
 background:#fff;
 color:#111;
-font-weight:bold;
 font-size:13px;
+font-weight:bold;
 padding:8px 10px;
 border:0;
 border-radius:8px;
 }
 
-/* ===== CONTROL ===== */
+/* =========================
+   CONTROL PAGE
+========================= */
 
 #control{
 display:none;
+width:100%;
 min-height:100vh;
-background:#111;
 padding:15px;
+background:#111;
 overflow:auto;
 }
 
@@ -245,11 +278,13 @@ margin:8px 0;
 border-radius:10px;
 }
 
-/* ===== TV SMALLER ===== */
+/* =========================
+   TV ADJUSTMENT
+========================= */
 
 @media(max-width:1200px){
 
-.center-wrap{
+.center{
 width:68%;
 }
 
@@ -257,8 +292,8 @@ width:68%;
 width:17%;
 }
 
-.logo-area{
-height:16vh;
+.logo{
+height:18vh;
 }
 
 .box h2{
@@ -277,6 +312,10 @@ padding:13px 2px;
 
 <body>
 
+<!-- =========================
+     TV SCREEN
+========================= -->
+
 <div id="display">
 
 <button
@@ -287,22 +326,39 @@ onclick="enableSound()">
 🔊 Ton aktivieren
 </button>
 
+<!-- BURGER LEFT -->
 <div class="food food-left"></div>
+
+<!-- CHICKEN RIGHT -->
 <div class="food food-right"></div>
 
-<div class="center-wrap">
 
-<div class="logo-area">
-<img src="IMG_8708.png" alt="PALMO CHICKEN">
+<div class="center">
+
+<!-- PALMO LOGO -->
+<div class="logo">
+
+<img
+src="IMG_8751.jpeg"
+alt="PALMO CHICKEN">
+
 </div>
+
 
 <div class="panels">
 
+<!-- LEFT PANEL -->
+
 <div class="box prep">
 
-<h2>🍲 &nbsp; IN ZUBEREITUNG</h2>
+<h2>
+🍲 &nbsp; IN ZUBEREITUNG
+</h2>
 
-<div id="prep" class="orders"></div>
+<div
+id="prep"
+class="orders">
+</div>
 
 <div class="footerText">
 VIELEN DANK, DASS DU HIER BIST
@@ -310,11 +366,19 @@ VIELEN DANK, DASS DU HIER BIST
 
 </div>
 
+
+<!-- RIGHT PANEL -->
+
 <div class="box ready">
 
-<h2>🛍️ &nbsp; ABHOLBEREIT</h2>
+<h2>
+🛍️ &nbsp; ABHOLBEREIT
+</h2>
 
-<div id="ready" class="orders"></div>
+<div
+id="ready"
+class="orders">
+</div>
 
 <div class="footerText">
 GUTEN APPETIT
@@ -327,7 +391,13 @@ GUTEN APPETIT
 </div>
 
 
-<div id="control" class="controls">
+<!-- =========================
+     CONTROL
+========================= -->
+
+<div
+id="control"
+class="controls">
 
 <div class="card">
 
@@ -346,6 +416,7 @@ Hinzufügen
 
 </div>
 
+
 <div class="card">
 
 <h2>Aktuelle Bestellungen</h2>
@@ -359,59 +430,105 @@ Hinzufügen
 
 <script>
 
+/* =========================
+   FIREBASE
+========================= */
+
 var DB=
 "https://palmen-grill-monitor-default-rtdb.europe-west1.firebasedatabase.app";
 
+
+/* =========================
+   MODE
+========================= */
+
 function getParameter(name){
 
-var query=window.location.search.substring(1);
-var vars=query.split("&");
+var query=
+window.location.search.substring(1);
+
+var vars=
+query.split("&");
 
 for(var i=0;i<vars.length;i++){
 
-var pair=vars[i].split("=");
+var pair=
+vars[i].split("=");
 
 if(pair[0]===name){
-return decodeURIComponent(pair[1]||"");
+
+return decodeURIComponent(
+pair[1]||""
+);
+
 }
 
 }
 
 return null;
+
 }
 
-var mode=getParameter("mode")||"control";
 
-document.getElementById(
-mode==="display" ? "display" : "control"
-).style.display="block";
+var mode=
+getParameter("mode")||
+"control";
 
 
-/* ===== SOUND ===== */
+document
+.getElementById(
+mode==="display"
+?
+"display"
+:
+"control"
+)
+.style.display="block";
+
+
+/* =========================
+   SOUND
+========================= */
 
 var soundEnabled=false;
+
 var previousReady={};
+
 var firstLoad=true;
+
 var audioPlayer=null;
 
+
 if(mode==="display"){
-document.getElementById("soundBtn").style.display="block";
+
+document
+.getElementById("soundBtn")
+.style.display="block";
+
 }
+
 
 function enableSound(){
 
 soundEnabled=true;
 
-document.getElementById("soundBtn").innerHTML=
+document
+.getElementById("soundBtn")
+.innerHTML=
 "🔊 Ton aktiv";
 
 beep();
 
 setTimeout(function(){
-speak("Ton ist aktiviert");
+
+speak(
+"Ton ist aktiviert"
+);
+
 },500);
 
 }
+
 
 function speak(text){
 
@@ -421,28 +538,47 @@ try{
 
 var url=
 "https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=de&q="
-+encodeURIComponent(text);
++
+encodeURIComponent(text);
 
-audioPlayer=new Audio(url);
+
+audioPlayer=
+new Audio(url);
+
 audioPlayer.volume=1;
 
-var p=audioPlayer.play();
+
+var p=
+audioPlayer.play();
+
 
 if(p && p.catch){
+
 p.catch(function(){
+
 beep();
+
 });
+
 }
 
-audioPlayer.onerror=function(){
+
+audioPlayer.onerror=
+function(){
+
 beep();
+
 };
 
+
 }catch(e){
+
 beep();
+
 }
 
 }
+
 
 function beep(){
 
@@ -454,37 +590,69 @@ window.webkitAudioContext;
 
 if(!AC)return;
 
-var ctx=new AC();
-var osc=ctx.createOscillator();
-var gain=ctx.createGain();
+
+var ctx=
+new AC();
+
+
+var osc=
+ctx.createOscillator();
+
+
+var gain=
+ctx.createGain();
+
 
 osc.connect(gain);
-gain.connect(ctx.destination);
 
-osc.frequency.value=880;
-gain.gain.value=0.5;
+gain.connect(
+ctx.destination
+);
+
+
+osc.frequency.value=
+880;
+
+
+gain.gain.value=
+0.5;
+
 
 osc.start();
+
 
 setTimeout(function(){
 
 try{
+
 osc.stop();
+
 ctx.close();
+
 }catch(e){}
 
 },500);
+
 
 }catch(e){}
 
 }
 
 
-/* ===== REQUEST ===== */
+/* =========================
+   FIREBASE REQUEST
+========================= */
 
-function req(method,path,data,cb){
+function req(
+method,
+path,
+data,
+cb
+){
 
-var x=new XMLHttpRequest();
+var x=
+new XMLHttpRequest();
+
 
 x.open(
 method,
@@ -492,20 +660,32 @@ DB+path+".json",
 true
 );
 
+
 x.setRequestHeader(
 "Content-Type",
 "application/json"
 );
 
-x.onreadystatechange=function(){
 
-if(x.readyState===4 && cb){
+x.onreadystatechange=
+function(){
+
+if(
+x.readyState===4 &&
+cb
+){
 
 var r=null;
 
 try{
-r=JSON.parse(x.responseText);
+
+r=
+JSON.parse(
+x.responseText
+);
+
 }catch(e){}
+
 
 cb(r);
 
@@ -513,24 +693,42 @@ cb(r);
 
 };
 
+
 x.send(
-data===null || data===undefined
-? null
-: JSON.stringify(data)
+
+data===null ||
+data===undefined
+
+?
+null
+
+:
+JSON.stringify(data)
+
 );
 
 }
 
 
-/* ===== ADD ORDER ===== */
+/* =========================
+   ADD ORDER
+========================= */
 
 function addOrder(){
 
-var input=document.getElementById("n");
+var input=
+document.getElementById("n");
 
-var n=input.value.replace(/\D/g,"");
+
+var n=
+input.value.replace(
+/\D/g,
+""
+);
+
 
 if(!n)return;
+
 
 req(
 "GET",
@@ -538,51 +736,77 @@ req(
 null,
 function(data){
 
-data=data||{};
+data=
+data||{};
 
-var duplicate=false;
 
-Object.keys(data).forEach(function(k){
+var duplicate=
+false;
+
+
+Object
+.keys(data)
+.forEach(function(k){
 
 if(
-String(data[k].number)===
+String(data[k].number)
+===
 String(n)
 ){
-duplicate=true;
+
+duplicate=
+true;
+
 }
 
 });
 
+
 if(duplicate){
 
 alert(
-"Nummer "+n+
+"Nummer "+
+n+
 " ist bereits vorhanden."
 );
 
 return;
+
 }
+
 
 req(
 "POST",
 "/orders",
 {
+
 number:n,
+
 status:"preparing",
-createdAt:Date.now()
+
+createdAt:
+Date.now()
+
 },
+
 function(){
+
 input.value="";
+
 }
+
 );
 
 }
+
 );
 
 }
 
 
-/* ===== READY ===== */
+/* =========================
+   READY
+========================= */
 
 function setReady(k){
 
@@ -590,15 +814,22 @@ req(
 "PATCH",
 "/orders/"+k,
 {
+
 status:"ready",
-readyAt:Date.now()
+
+readyAt:
+Date.now()
+
 }
+
 );
 
 }
 
 
-/* ===== REMOVE ===== */
+/* =========================
+   REMOVE
+========================= */
 
 function removeOrder(k){
 
@@ -610,39 +841,62 @@ req(
 }
 
 
-/* ===== RENDER ===== */
+/* =========================
+   RENDER
+========================= */
 
 function render(data){
 
-data=data||{};
+data=
+data||{};
+
 
 var prep="";
+
 var ready="";
+
 var list="";
+
 var currentReady={};
 
-Object.keys(data).forEach(function(k){
 
-var o=data[k];
+Object
+.keys(data)
+.forEach(function(k){
 
-if(o.status==="ready"){
+var o=
+data[k];
+
+
+if(
+o.status==="ready"
+){
 
 ready+=
 '<div class="num">'+
 o.number+
 '</div>';
 
+
 list+=
 '<div class="row">'+
-'<b>'+o.number+'</b> '+
+'<b>'+
+o.number+
+'</b> '+
 'ABHOLBEREIT '+
 '<button class="done" '+
 'onclick="removeOrder(\''+
 k+
-'\')">Abgeholt</button>'+
+'\')">'+
+'Abgeholt'+
+'</button>'+
 '</div>';
 
+
 currentReady[k]=true;
+
+
+/* SOUND ONLY — NO FLASH */
 
 if(
 mode==="display" &&
@@ -658,49 +912,76 @@ o.number+
 
 }
 
+
 }else{
+
 
 prep+=
 '<div class="num">'+
 o.number+
 '</div>';
 
+
 list+=
 '<div class="row">'+
-'<b>'+o.number+'</b> '+
+'<b>'+
+o.number+
+'</b> '+
 'IN ZUBEREITUNG '+
 '<button class="readybtn" '+
 'onclick="setReady(\''+
 k+
-'\')">Fertig</button>'+
+'\')">'+
+'Fertig'+
+'</button>'+
 '</div>';
 
 }
 
 });
 
-previousReady=currentReady;
-firstLoad=false;
 
-if(mode==="display"){
+previousReady=
+currentReady;
 
-document.getElementById("prep").innerHTML=
+
+firstLoad=
+false;
+
+
+if(
+mode==="display"
+){
+
+document
+.getElementById("prep")
+.innerHTML=
 prep||"";
 
-document.getElementById("ready").innerHTML=
+
+document
+.getElementById("ready")
+.innerHTML=
 ready||"";
+
 
 }else{
 
-document.getElementById("list").innerHTML=
-list||"Keine Bestellungen";
+
+document
+.getElementById("list")
+.innerHTML=
+list||
+"Keine Bestellungen";
 
 }
 
 }
 
 
-/* ===== AUTO UPDATE ===== */
+/* =========================
+   AUTO UPDATE
+========================= */
 
 function poll(){
 
@@ -718,9 +999,11 @@ poll,
 );
 
 }
+
 );
 
 }
+
 
 poll();
 
