@@ -346,6 +346,79 @@ document.getElementById("control")
 
 
 /* =========================
+   SOUND
+========================= */
+
+var firstLoad=true;
+var previousReady={};
+
+
+function speakReady(number){
+
+if(mode!=="display"){
+return;
+}
+
+try{
+
+if(
+"speechSynthesis" in window
+){
+
+window.speechSynthesis.cancel();
+
+var text =
+"Bestellnummer " +
+number +
+" ist abholbereit";
+
+var speech =
+new SpeechSynthesisUtterance(text);
+
+speech.lang="de-DE";
+speech.rate=0.9;
+speech.pitch=1;
+speech.volume=1;
+
+
+/* نختار صوت ألماني إذا موجود */
+
+var voices =
+window.speechSynthesis.getVoices();
+
+for(
+var i=0;
+i<voices.length;
+i++
+){
+
+if(
+voices[i].lang &&
+voices[i].lang
+.toLowerCase()
+.indexOf("de")===0
+){
+
+speech.voice=voices[i];
+break;
+
+}
+
+}
+
+window.speechSynthesis.speak(
+speech
+);
+
+}
+
+}catch(e){}
+
+}
+
+
+
+/* =========================
    FIREBASE REQUEST
 ========================= */
 
@@ -642,6 +715,11 @@ var list="";
 var seen={};
 
 
+/* الأرقام الجاهزة الحالية للصوت */
+
+var currentReady={};
+
+
 var keys =
 Object.keys(data);
 
@@ -696,6 +774,22 @@ seen[number]=true;
 ========================= */
 
 if(order.status==="ready"){
+
+currentReady[key]=true;
+
+
+/* صوت فقط عند انتقال الرقم إلى جاهز */
+
+if(
+mode==="display" &&
+!firstLoad &&
+!previousReady[key]
+){
+
+speakReady(number);
+
+}
+
 
 ready +=
 '<div class="num">'+
@@ -778,6 +872,12 @@ document.getElementById("list")
 list || "Keine Bestellungen";
 
 }
+
+
+/* تحديث حالة الصوت */
+
+previousReady=currentReady;
+firstLoad=false;
 
 }
 
