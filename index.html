@@ -21,10 +21,6 @@ background:#111;
 color:#fff;
 }
 
-/* =========================
-   TV
-========================= */
-
 #display{
 display:none;
 width:100vw;
@@ -34,12 +30,10 @@ overflow:hidden;
 position:relative;
 }
 
-/* ===== SOUND BUTTON ===== */
-
 #soundStart{
 position:absolute;
-top:12px;
-right:12px;
+top:10px;
+right:10px;
 z-index:9999;
 background:#fff;
 color:#111;
@@ -50,8 +44,6 @@ font-size:18px;
 font-weight:bold;
 cursor:pointer;
 }
-
-/* ===== LOGO ===== */
 
 .logo{
 height:18vh;
@@ -67,8 +59,6 @@ max-width:70%;
 max-height:100%;
 object-fit:contain;
 }
-
-/* ===== TWO SIDES ===== */
 
 .grid{
 display:flex;
@@ -120,17 +110,10 @@ font-weight:bold;
 color:#fff;
 }
 
-/* الرقم الجاهز */
-
 .ready .num{
 background:#15965f;
 margin-bottom:4px;
 }
-
-
-/* =========================
-   CONTROL
-========================= */
 
 #control{
 display:none;
@@ -196,8 +179,6 @@ border-radius:8px;
 font-size:20px;
 }
 
-/* ===== رسالة الرقم المكرر ===== */
-
 #errorBox{
 display:none;
 background:#c62828;
@@ -214,11 +195,6 @@ margin-top:12px;
 
 <body>
 
-
-<!-- =========================
-     TV DISPLAY
-========================= -->
-
 <div id="display">
 
 <button id="soundStart" onclick="enableSound()">
@@ -231,8 +207,6 @@ margin-top:12px;
 
 <div class="grid">
 
-<!-- التحضير -->
-
 <div class="box prep">
 
 <div class="title">
@@ -242,9 +216,6 @@ IN ZUBEREITUNG
 <div id="prep" class="orders"></div>
 
 </div>
-
-
-<!-- الجاهز -->
 
 <div class="box ready">
 
@@ -259,11 +230,6 @@ ABHOLBEREIT
 </div>
 </div>
 
-
-
-<!-- =========================
-     CONTROL
-========================= -->
 
 <div id="control">
 
@@ -290,7 +256,6 @@ Diese Nummer ist bereits vorhanden. Bitte ändern Sie die Nummer.
 
 </div>
 
-
 <div class="card">
 
 <h2>Bestellungen</h2>
@@ -303,9 +268,10 @@ Diese Nummer ist bereits vorhanden. Bitte ändern Sie die Nummer.
 </div>
 
 
+<audio id="voicePlayer" preload="auto"></audio>
+
 
 <script>
-
 
 /* =========================
    FIREBASE
@@ -339,122 +305,182 @@ mode=pair[1];
 
 if(mode==="display"){
 
-document.getElementById("display")
-.style.display="block";
+document.getElementById("display").style.display="block";
 
 }else{
 
-document.getElementById("control")
-.style.display="block";
+document.getElementById("control").style.display="block";
 
 }
 
 
-<script>
-
 /* =========================
-   SOUND - SAMSUNG TV
+   SOUND - SAMSUNG
 ========================= */
 
-var soundEnabled = false;
-var audioContext = null;
-var firstLoad = true;
-var previousReady = {};
+var soundEnabled=false;
+var audioContext=null;
+var firstLoad=true;
+var previousReady={};
+
 
 function enableSound(){
 
-    try{
+soundEnabled=true;
 
-        var AC =
-        window.AudioContext ||
-        window.webkitAudioContext;
+try{
 
-        if(!AC){
-            alert("Audio wird von diesem Fernseher nicht unterstützt.");
-            return;
-        }
+var AC =
+window.AudioContext ||
+window.webkitAudioContext;
 
-        if(!audioContext){
-            audioContext = new AC();
-        }
+if(AC){
 
-        if(audioContext.state === "suspended"){
-            audioContext.resume();
-        }
+if(!audioContext){
+audioContext=new AC();
+}
 
-        soundEnabled = true;
+if(audioContext.state==="suspended"){
+audioContext.resume();
+}
 
-        /* صوت اختبار */
-        playBeep();
+playBeep();
 
-        var btn =
-        document.getElementById("soundStart");
+}
 
-        if(btn){
-            btn.innerHTML = "🔊 TON AN";
-            btn.style.background = "#00b96b";
-            btn.style.color = "#fff";
-        }
+}catch(e){}
 
-    }catch(e){
 
-        alert("Ton konnte nicht aktiviert werden.");
+/* فتح مشغل الصوت */
 
-    }
+try{
+
+var player =
+document.getElementById("voicePlayer");
+
+player.volume=1;
+
+}catch(e){}
+
+
+var btn =
+document.getElementById("soundStart");
+
+if(btn){
+
+btn.innerHTML="🔊 TON AN";
+btn.style.background="#00b96b";
+btn.style.color="#fff";
+
+}
 
 }
 
 
 function playBeep(){
 
-    if(!soundEnabled || !audioContext){
-        return;
-    }
+if(!soundEnabled){
+return;
+}
 
-    try{
+try{
 
-        var osc =
-        audioContext.createOscillator();
+if(!audioContext){
 
-        var gain =
-        audioContext.createGain();
+var AC =
+window.AudioContext ||
+window.webkitAudioContext;
 
-        osc.connect(gain);
-        gain.connect(audioContext.destination);
+if(!AC){
+return;
+}
 
-        osc.type = "sine";
-        osc.frequency.value = 880;
+audioContext=new AC();
 
-        gain.gain.value = 0.8;
+}
 
-        osc.start();
+var osc =
+audioContext.createOscillator();
 
-        setTimeout(function(){
+var gain =
+audioContext.createGain();
 
-            try{
-                osc.stop();
-            }catch(e){}
+osc.connect(gain);
+gain.connect(audioContext.destination);
 
-        },700);
+osc.frequency.value=880;
+gain.gain.value=0.8;
 
-    }catch(e){}
+osc.start();
+
+setTimeout(function(){
+
+try{
+osc.stop();
+}catch(e){}
+
+},700);
+
+}catch(e){}
 
 }
 
 
 function speakReady(number){
 
-    if(
-        mode !== "display" ||
-        !soundEnabled
-    ){
-        return;
-    }
+if(
+mode!=="display" ||
+!soundEnabled
+){
+return;
+}
 
-    /* صوت تنبيه */
-    playBeep();
+
+/* أولاً صفارة */
+
+playBeep();
+
+
+/* بعدها محاولة نطق الرقم */
+
+setTimeout(function(){
+
+try{
+
+var player =
+document.getElementById("voicePlayer");
+
+var text =
+"Bestellnummer " +
+number +
+" ist abholbereit";
+
+player.src =
+"https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=de&q="+
+encodeURIComponent(text);
+
+player.volume=1;
+
+var p =
+player.play();
+
+if(p && p.catch){
+
+p.catch(function(){
+
+/* إذا النطق ما اشتغل تبقى الصفارة شغالة */
+
+});
 
 }
+
+}catch(e){}
+
+},800);
+
+}
+
+
 /* =========================
    FIREBASE REQUEST
 ========================= */
@@ -482,7 +508,10 @@ if(xhr.readyState===4){
 var result=null;
 
 try{
-result=JSON.parse(xhr.responseText);
+
+result=
+JSON.parse(xhr.responseText);
+
 }catch(e){}
 
 if(callback){
@@ -516,6 +545,7 @@ JSON.stringify(data)
 ========================= */
 
 var addingOrder=false;
+
 
 function addOrder(){
 
@@ -596,20 +626,24 @@ return;
 request(
 "POST",
 "/orders",
+
 {
 number:number,
 status:"preparing",
 createdAt:Date.now()
 },
+
 function(){
 
 addingOrder=false;
 
 input.value="";
 error.style.display="none";
+
 input.focus();
 
 }
+
 );
 
 }
@@ -620,7 +654,7 @@ input.focus();
 
 
 /* =========================
-   ENTER = ADD
+   ENTER
 ========================= */
 
 var numberInput =
@@ -638,6 +672,7 @@ e.keyCode===13
 ){
 
 e.preventDefault();
+
 addOrder();
 
 }
@@ -657,10 +692,12 @@ function setReady(key){
 request(
 "PATCH",
 "/orders/"+key,
+
 {
 status:"ready",
 readyAt:Date.now()
 },
+
 null
 );
 
@@ -668,7 +705,7 @@ null
 
 
 /* =========================
-   DELETE / ABGEHOLT
+   DELETE
 ========================= */
 
 function removeOrder(key){
@@ -711,9 +748,11 @@ data[b].createdAt || 0
 
 });
 
+
 for(var i=0;i<keys.length;i++){
 
 var key=keys[i];
+
 var order=data[key];
 
 if(
@@ -733,13 +772,14 @@ continue;
 seen[number]=true;
 
 
-/* =========================
-   READY
-========================= */
+/* READY */
 
 if(order.status==="ready"){
 
 currentReady[key]=true;
+
+
+/* صوت عند انتقال الرقم إلى جاهز */
 
 if(
 mode==="display" &&
@@ -751,30 +791,33 @@ speakReady(number);
 
 }
 
+
 ready +=
 '<div class="num">'+
 number+
 '</div>';
 
+
 list +=
 '<div class="row">'+
+
 '<b>'+
 number+
 '</b> — ABHOLBEREIT '+
+
 '<button class="done" '+
 'onclick="removeOrder(\''+
 key+
 '\')">'+
 'Abgeholt'+
 '</button>'+
+
 '</div>';
 
 }
 
 
-/* =========================
-   PREPARING
-========================= */
+/* PREPARING */
 
 else{
 
@@ -783,17 +826,21 @@ prep +=
 number+
 '</div>';
 
+
 list +=
 '<div class="row">'+
+
 '<b>'+
 number+
 '</b> — IN ZUBEREITUNG '+
+
 '<button class="readybtn" '+
 'onclick="setReady(\''+
 key+
 '\')">'+
 'Fertig'+
 '</button>'+
+
 '</div>';
 
 }
@@ -805,11 +852,8 @@ key+
 
 if(mode==="display"){
 
-document.getElementById("prep")
-.innerHTML=prep;
-
-document.getElementById("ready")
-.innerHTML=ready;
+document.getElementById("prep").innerHTML=prep;
+document.getElementById("ready").innerHTML=ready;
 
 }
 
@@ -818,8 +862,7 @@ document.getElementById("ready")
 
 else{
 
-document.getElementById("list")
-.innerHTML=
+document.getElementById("list").innerHTML=
 list || "Keine Bestellungen";
 
 }
@@ -840,6 +883,7 @@ request(
 "GET",
 "/orders",
 null,
+
 function(data){
 
 render(data);
@@ -850,6 +894,7 @@ poll,
 );
 
 }
+
 );
 
 }
