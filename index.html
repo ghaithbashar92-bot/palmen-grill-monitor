@@ -350,41 +350,91 @@ document.getElementById("control")
 }
 
 
+<script>
+
 /* =========================
    SOUND
 ========================= */
 
 var soundEnabled=false;
+var audioContext=null;
 var firstLoad=true;
 var previousReady={};
 
 function enableSound(){
 
-soundEnabled=true;
-
-var btn =
-document.getElementById("soundStart");
-
-if(btn){
-btn.style.display="none";
-}
-
-/* محاولة فتح الصوت من المتصفح */
 try{
 
-if("speechSynthesis" in window){
+var AC =
+window.AudioContext ||
+window.webkitAudioContext;
 
-var test =
-new SpeechSynthesisUtterance("Ton aktiviert");
+if(!AC){
+alert("Audio wird von diesem Browser nicht unterstützt.");
+return;
+}
 
-test.lang="de-DE";
-test.volume=1;
-test.rate=1;
+if(!audioContext){
+audioContext=new AC();
+}
 
-window.speechSynthesis.cancel();
-window.speechSynthesis.speak(test);
+if(audioContext.state==="suspended"){
+audioContext.resume();
+}
+
+soundEnabled=true;
+
+/* صوت اختبار قوي */
+playBeep();
+
+var btn=document.getElementById("soundStart");
+
+if(btn){
+btn.innerHTML="🔊 TON AN";
+btn.style.background="#00b96b";
+btn.style.color="#fff";
+}
+
+}catch(e){
+
+alert("Ton konnte nicht aktiviert werden.");
 
 }
+
+}
+
+
+function playBeep(){
+
+if(!soundEnabled || !audioContext){
+return;
+}
+
+try{
+
+var osc=audioContext.createOscillator();
+var gain=audioContext.createGain();
+
+osc.connect(gain);
+gain.connect(audioContext.destination);
+
+osc.type="sine";
+osc.frequency.value=880;
+
+gain.gain.setValueAtTime(
+0.8,
+audioContext.currentTime
+);
+
+osc.start();
+
+setTimeout(function(){
+
+try{
+osc.stop();
+}catch(e){}
+
+},600);
 
 }catch(e){}
 
@@ -400,41 +450,29 @@ mode!=="display" ||
 return;
 }
 
+/* أولاً صفارة حتى نضمن وجود صوت */
+playBeep();
+
+/* بعدها يحاول ينطق الرقم بالألماني */
+setTimeout(function(){
+
 try{
 
 if("speechSynthesis" in window){
 
 window.speechSynthesis.cancel();
 
-var text =
+var speech =
+new SpeechSynthesisUtterance(
 "Bestellnummer " +
 number +
-" ist abholbereit";
-
-var speech =
-new SpeechSynthesisUtterance(text);
+" ist abholbereit"
+);
 
 speech.lang="de-DE";
-speech.rate=0.9;
-speech.pitch=1;
 speech.volume=1;
-
-var voices =
-window.speechSynthesis.getVoices();
-
-for(var i=0;i<voices.length;i++){
-
-if(
-voices[i].lang &&
-voices[i].lang.toLowerCase().indexOf("de")===0
-){
-
-speech.voice=voices[i];
-break;
-
-}
-
-}
+speech.rate=0.85;
+speech.pitch=1;
 
 window.speechSynthesis.speak(speech);
 
@@ -442,8 +480,11 @@ window.speechSynthesis.speak(speech);
 
 }catch(e){}
 
+},700);
+
 }
 
+</script>
 
 /* =========================
    FIREBASE REQUEST
