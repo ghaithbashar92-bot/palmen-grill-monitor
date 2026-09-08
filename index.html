@@ -353,139 +353,108 @@ document.getElementById("control")
 <script>
 
 /* =========================
-   SOUND
+   SOUND - SAMSUNG TV
 ========================= */
 
-var soundEnabled=false;
-var audioContext=null;
-var firstLoad=true;
-var previousReady={};
+var soundEnabled = false;
+var audioContext = null;
+var firstLoad = true;
+var previousReady = {};
 
 function enableSound(){
 
-try{
+    try{
 
-var AC =
-window.AudioContext ||
-window.webkitAudioContext;
+        var AC =
+        window.AudioContext ||
+        window.webkitAudioContext;
 
-if(!AC){
-alert("Audio wird von diesem Browser nicht unterstützt.");
-return;
-}
+        if(!AC){
+            alert("Audio wird von diesem Fernseher nicht unterstützt.");
+            return;
+        }
 
-if(!audioContext){
-audioContext=new AC();
-}
+        if(!audioContext){
+            audioContext = new AC();
+        }
 
-if(audioContext.state==="suspended"){
-audioContext.resume();
-}
+        if(audioContext.state === "suspended"){
+            audioContext.resume();
+        }
 
-soundEnabled=true;
+        soundEnabled = true;
 
-/* صوت اختبار قوي */
-playBeep();
+        /* صوت اختبار */
+        playBeep();
 
-var btn=document.getElementById("soundStart");
+        var btn =
+        document.getElementById("soundStart");
 
-if(btn){
-btn.innerHTML="🔊 TON AN";
-btn.style.background="#00b96b";
-btn.style.color="#fff";
-}
+        if(btn){
+            btn.innerHTML = "🔊 TON AN";
+            btn.style.background = "#00b96b";
+            btn.style.color = "#fff";
+        }
 
-}catch(e){
+    }catch(e){
 
-alert("Ton konnte nicht aktiviert werden.");
+        alert("Ton konnte nicht aktiviert werden.");
 
-}
+    }
 
 }
 
 
 function playBeep(){
 
-if(!soundEnabled || !audioContext){
-return;
-}
+    if(!soundEnabled || !audioContext){
+        return;
+    }
 
-try{
+    try{
 
-var osc=audioContext.createOscillator();
-var gain=audioContext.createGain();
+        var osc =
+        audioContext.createOscillator();
 
-osc.connect(gain);
-gain.connect(audioContext.destination);
+        var gain =
+        audioContext.createGain();
 
-osc.type="sine";
-osc.frequency.value=880;
+        osc.connect(gain);
+        gain.connect(audioContext.destination);
 
-gain.gain.setValueAtTime(
-0.8,
-audioContext.currentTime
-);
+        osc.type = "sine";
+        osc.frequency.value = 880;
 
-osc.start();
+        gain.gain.value = 0.8;
 
-setTimeout(function(){
+        osc.start();
 
-try{
-osc.stop();
-}catch(e){}
+        setTimeout(function(){
 
-},600);
+            try{
+                osc.stop();
+            }catch(e){}
 
-}catch(e){}
+        },700);
+
+    }catch(e){}
 
 }
 
 
 function speakReady(number){
 
-if(
-mode!=="display" ||
-!soundEnabled
-){
-return;
-}
+    if(
+        mode !== "display" ||
+        !soundEnabled
+    ){
+        return;
+    }
 
-/* أولاً صفارة حتى نضمن وجود صوت */
-playBeep();
-
-/* بعدها يحاول ينطق الرقم بالألماني */
-setTimeout(function(){
-
-try{
-
-if("speechSynthesis" in window){
-
-window.speechSynthesis.cancel();
-
-var speech =
-new SpeechSynthesisUtterance(
-"Bestellnummer " +
-number +
-" ist abholbereit"
-);
-
-speech.lang="de-DE";
-speech.volume=1;
-speech.rate=0.85;
-speech.pitch=1;
-
-window.speechSynthesis.speak(speech);
+    /* صوت تنبيه */
+    playBeep();
 
 }
-
-}catch(e){}
-
-},700);
-
-}
-
-</script>
-
 /* =========================
    FIREBASE REQUEST
 ========================= */
