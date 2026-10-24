@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="de">
 <head>
@@ -315,7 +316,7 @@ document.getElementById("control").style.display="block";
 
 
 /* =========================
-   SOUND - SAMSUNG
+   SOUND - DOORBELL
 ========================= */
 
 var soundEnabled=false;
@@ -344,14 +345,12 @@ if(audioContext.state==="suspended"){
 audioContext.resume();
 }
 
+/* تجربة جرس الباب */
 playBeep();
 
 }
 
 }catch(e){}
-
-
-/* فتح مشغل الصوت */
 
 try{
 
@@ -361,7 +360,6 @@ document.getElementById("voicePlayer");
 player.volume=1;
 
 }catch(e){}
-
 
 var btn =
 document.getElementById("soundStart");
@@ -376,6 +374,11 @@ btn.style.color="#fff";
 
 }
 
+
+/* =========================
+   TWO-TONE DOORBELL
+   تن تن
+========================= */
 
 function playBeep(){
 
@@ -399,29 +402,53 @@ audioContext=new AC();
 
 }
 
-var osc =
-audioContext.createOscillator();
+if(audioContext.state==="suspended"){
+audioContext.resume();
+}
 
-var gain =
-audioContext.createGain();
+var now=audioContext.currentTime;
+
+/* جرس ناعم بنغمتين */
+function bellTone(freq,start,duration){
+
+var osc=audioContext.createOscillator();
+var gain=audioContext.createGain();
+
+osc.type="sine";
+osc.frequency.setValueAtTime(
+freq,
+start
+);
 
 osc.connect(gain);
 gain.connect(audioContext.destination);
 
-osc.frequency.value=880;
-gain.gain.value=0.8;
+gain.gain.setValueAtTime(0.0001,start);
 
-osc.start();
+gain.gain.exponentialRampToValueAtTime(
+0.22,
+start+0.025
+);
 
-setTimeout(function(){
+gain.gain.exponentialRampToValueAtTime(
+0.0001,
+start+duration
+);
 
-try{
-osc.stop();
-}catch(e){}
+osc.start(start);
+osc.stop(start+duration+0.03);
 
-},700);
+}
 
-}catch(e){}
+/* Ding */
+bellTone(784,now+0.02,0.45);
+
+/* Dong */
+bellTone(587.33,now+0.48,0.65);
+
+}catch(e){
+
+}
 
 }
 
@@ -435,8 +462,7 @@ mode!=="display" ||
 return;
 }
 
-
-/* أولاً صفارة */
+/* جرس الباب تن تن */
 
 playBeep();
 
@@ -468,7 +494,7 @@ if(p && p.catch){
 
 p.catch(function(){
 
-/* إذا النطق ما اشتغل تبقى الصفارة شغالة */
+/* إذا النطق ما اشتغل يبقى الجرس */
 
 });
 
@@ -476,7 +502,7 @@ p.catch(function(){
 
 }catch(e){}
 
-},800);
+},1300);
 
 }
 
